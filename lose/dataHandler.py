@@ -1,7 +1,6 @@
 import numpy as np
 import tables as t
 
-__version__ = '0.1'
 
 class LOSE:
 	def __init__(self):
