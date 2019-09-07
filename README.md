@@ -10,6 +10,15 @@
 
 ```
 
+## installation
+```python
+pip3 install -U lose
+```
+or
+```python
+pip install -U lose
+```
+
 ## structure
 #### vars
 `LOSE.fname` is the path to  to the `.h5` file including the name and extension, default is `None`.
