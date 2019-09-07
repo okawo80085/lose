@@ -12,11 +12,10 @@
 
 ## installation
 ```python
-pip3 install -U lose
+python3 setup.py sdist bdist_wheel
 ```
-or
 ```python
-pip install -U lose
+pip3 install -U dist/lose-0.1-py3-none-any.whl 
 ```
 
 ## structure
