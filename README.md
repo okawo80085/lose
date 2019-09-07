@@ -147,7 +147,7 @@ print (l.get_shape('y')) # (3, 3)
 `LOSE.iterItems` and `LOSE.iterOutput` __have__ to be defined by user first
 
 ### example `LOSE.generator()` usage
-for this example let's say that file has requested data in it
+for this example lets say that file has requested data in it
 ```python
 import numpy as np
 from lose import LOSE
