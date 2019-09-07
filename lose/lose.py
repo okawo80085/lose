@@ -28,7 +28,7 @@ class LOSE:
 		with t.open_file(self.fname, mode=self.fmode) as f:
 			for key, val in kwards.items():
 				f.create_earray(f.root, key, self.atom, val)
-				print ([key], val)
+				#print ([key], val)
 
 			#print (f)
 
