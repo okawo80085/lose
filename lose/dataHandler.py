@@ -13,8 +13,8 @@ class LOSE:
 		self.iterItems = None
 		self.iterOutput = None
 		self.loopforever = False
-		self.index = 0
 		self.limit = None
+		self.shuffle = False
 
 		self.batch_obj = '[:]'
 
@@ -61,31 +61,62 @@ class LOSE:
 
 		dataset_limit = self.get_shape(self.iterItems[0][0])[0]
 		#print (dataset_limit)
+		a = []
+		b = []
+		index = 0
+
+		while 1:
+			a.append(index)
+			b.append(index+self.batch_size)
+
+			index += self.batch_size
+
+			if self.limit is not None:
+				if index >= self.limit or index >= dataset_limit:
+					break
+
+			elif index >= dataset_limit:
+				break
+
+		if self.shuffle:
+			np.random.seed(None)
+			st = np.random.get_state()
+			np.random.set_state(st)
+			np.random.shuffle(a)
+			np.random.set_state(st)
+			np.random.shuffle(b)
+
+		index = 0
 
 		with t.open_file(self.fname, mode='r') as f:
 			while 1:
+				if self.shuffle:
+					np.random.seed(None)
+					st = np.random.get_state()
+
 				stepX = {}
 				stepY = {}
 				for name, key in zip(self.iterItems[0], self.iterOutput[0]):
-					x = eval('f.root.{}[{}:{}]'.format(name, self.index, self.index+self.batch_size))
+					x = eval('f.root.{}[{}:{}]'.format(name, a[index], b[index]))
+					if self.shuffle:
+						np.random.set_state(st)
+						np.random.shuffle(x)
+
 					stepX[key] = x
 
 				for name, key in zip(self.iterItems[1], self.iterOutput[1]):
-					y = eval('f.root.{}[{}:{}]'.format(name, self.index, self.index+self.batch_size))
+					y = eval('f.root.{}[{}:{}]'.format(name, a[index], b[index]))
+					if self.shuffle:
+						np.random.set_state(st)
+						np.random.shuffle(y)
+
 					stepY[key] = y
 
 				yield (stepX, stepY)
 
-				self.index += self.batch_size
+				index += 1
 
-				if self.limit is not None:
-					if self.index >= self.limit or self.index >= dataset_limit:
-						self.index = 0
-
-						if self.loopforever != True:
-							raise StopIteration
-
-				elif self.index >= dataset_limit:
-					self.index = 0
+				if index >= len(a):
+					index = 0
 					if self.loopforever != True:
 						raise StopIteration

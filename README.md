@@ -1,6 +1,6 @@
-# lose.py
+# lose
 
-`LOSE()` is a helper class for handling data using `hdf5` file format and `tables` lib
+lose, but in particular `LOSE()`, is a helper class for handling data using `hdf5` file format and `tables`
 
 ```python
 >>> from lose import LOSE
@@ -31,13 +31,17 @@ pip install -U lose
 
 **`LOSE.generator()` related vars:**
 
-`LOSE.batch_size` batch size of data getting pulled from the `.h5` file, default is 1.
+`LOSE.batch_size` batch size of data getting pulled from the `.h5` file, default is `1`.
+
+`LOSE.limit` limits the amount of data loaded by the generator, default is `None`, if `None` all available data will be loaded. 
 
 `LOSE.loopforever` bool that allows infinite looping over the data, default is `False`.
 
 `LOSE.iterItems` list of X group names and list of Y group names, default is `None`, required to be user defined for `LOSE.generator()` to work.
 
 `LOSE.iterOutput` list of X output names and list of Y output names, default is `None`, required to be user defined for `LOSE.generator()` to work.
+
+`LOSE.shuffle` bool that enables shuffling of the data, default is `False`, affected by `LOSE.limit` and `LOSE.batch_size`.
 
 #### methods
 ```
@@ -88,7 +92,7 @@ class LOSE(builtins.object)
 
 ## example usage
 
-##### creating new groups in append/write mode 
+##### creating/adding new groups to a file in append/write mode
 ```python
 import numpy as np
 from lose import LOSE
@@ -100,7 +104,7 @@ l.fmode = 'w' # 'w' for write mode, 'a' for append mode, default is 'r'
 exampleDataX = np.arange(20, dtype=np.float32)
 exampleDataY = np.arange(3, dtype=np.float32)
 
-l.newGroup(x=(0, *exampleDataX.shape), y=(0, *exampleDataY.shape)) # creating new groups(ready for data saved to) in a file, if fmode is 'w' all groups in the file will be overwritten 
+l.newGroup(x=(0, *exampleDataX.shape), y=(0, *exampleDataY.shape)) # creating new groups(ready for data saved to) in a file, if fmode is 'w' all groups in the file will be overwritten
 ```
 ##### saving data into a group in append/write mode
 ```python
@@ -125,8 +129,8 @@ from lose import LOSE
 l = LOSE()
 l.fname = 'path/to/you/save/file.h5' # path to the .h5 file, has to be user defined before any methods can be used, default is None
 
-x, y = l.load('x', 'y')				 # loading data from the .h5 file(has to be a real file) populated by previous examples
-y2compare, x2compare = l.load('y', 'x') # the same thing 
+x, y = l.load('x', 'y') # loading data from the .h5 file(has to be a real file) populated by previous examples
+y2compare, x2compare = l.load('y', 'x') # the same thing
 
 print (np.all(x == x2compare), np.all(y == y2compare)) # True True
 ```
@@ -147,7 +151,7 @@ print (l.get_shape('y')) # (3, 3)
 `LOSE.iterItems` and `LOSE.iterOutput` __have__ to be defined by user first
 
 ### example `LOSE.generator()` usage
-for this example lets say that file has requested data in it
+for this example lets say that file has requested data in it and the model input/output layer names are present
 ```python
 import numpy as np
 from lose import LOSE
@@ -160,5 +164,8 @@ l.iterOutput = [['input_1', 'input_2'], ['dense_5']] # names of model's layers t
 l.loopforever = True
 l.batch_size = 20 # some batch size, can be bigger then the dataset, but won't output more data, it will just loop over or stop the iteration if LOSE.loopforever is False
 
-some_mode.fit_generator(l.generator(), steps_per_epoch=50, epochs=1000, shuffle=False) # the only down side is that it can't be shuffled by model.fit_generator(), yet...
-```
+l.limit = 10000 # lets say that the file has more data, but you only want to train on first 10000 samples
+
+l.shuffle = True # enable data shuffling for the generator
+
+some_mode.fit_generator(l.generator(), steps_per_epoch=50, epochs=1000, shuffle=False) # model.fit_generator() still can't shuffle the data, but LOSE.generator() can```
