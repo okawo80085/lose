@@ -12,7 +12,7 @@ setuptools.setup(
 	author="okawo",
 	author_email="okawo.198@gmail.com",
 	url="https://github.com/okawo80085/lose",
-	py_modules=['lose'],
+	packages=['lose'],
 	install_requires=['tables', 'numpy'],
 	license='MIT',
 	classifiers=[
