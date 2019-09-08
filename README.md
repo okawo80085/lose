@@ -41,7 +41,7 @@ pip install -U lose
 
 `LOSE.iterOutput` list of X output names and list of Y output names, default is `None`, required to be user defined for `LOSE.generator()` to work.
 
-`LOSE.shuffle` bool that enables shuffling of the data, default is `False`, affected by `LOSE.limit` and `LOSE.batch_size`.
+`LOSE.shuffle` bool that enables shuffling of the data, default is `False`, shuffling is affected by `LOSE.limit` and `LOSE.batch_size`.
 
 #### methods
 ```
