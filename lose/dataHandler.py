@@ -20,10 +20,10 @@ class LOSE:
 
 	def __repr__(self):
 		if self.fname is None:
-			return '<.h5 data handler, fname={}, fmode=\'{}\', atom={}>'.format(self.fname, self.fmode, self.atom)
+			return '<hdf5 data handler, fname={}, fmode=\'{}\', atom={}>'.format(self.fname, self.fmode, self.atom)
 		else:
 			with t.open_file(self.fname, mode=self.fmode) as f:
-				return '<.h5 data handler, fname={}, fmode=\'{}\', atom={}>\n\n.h5 file structure: {}'.format(self.fname, self.fmode, self.atom, f)
+				return '<hdf5 data handler, fname={}, fmode=\'{}\', atom={}>\n\n.h5 file structure: {}'.format(self.fname, self.fmode, self.atom, f)
 
 	def newGroup(self, **kwards):
 		with t.open_file(self.fname, mode=self.fmode) as f:

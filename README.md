@@ -6,16 +6,17 @@
 >>> from lose import LOSE
 >>> l = LOSE()
 >>> l
-<.h5 data handler, fname=None, fmode='r', atom=Float32Atom(shape=(), dflt=0.0)>
+<hdf5 data handler, fname=None, fmode='r', atom=Float32Atom(shape=(), dflt=0.0)>
 
 ```
 
 ## installation
 ```python
-python3 setup.py sdist bdist_wheel
+pip3 install -U lose
 ```
+or
 ```python
-pip3 install -U dist/lose-0.1-py3-none-any.whl 
+pip install -U lose
 ```
 
 ## structure
