@@ -124,7 +124,7 @@ class LOSE:
 
 				index += 1
 
-				if index >= len(a):
+				if index >= len(self._a):
 					index = 0
 					if self.loopforever != True:
 						raise StopIteration
