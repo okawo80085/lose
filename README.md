@@ -45,7 +45,7 @@ pip install -U lose
 
 #### methods
 ```
-Help on LOSE in module lose object:
+Help on LOSE in module lose.dataHandler object:
 
 class LOSE(builtins.object)
  |  Methods defined here:
@@ -58,7 +58,9 @@ class LOSE(builtins.object)
  |  
  |  generator(self)
  |  
- |  get_shape(self, groupName)
+ |  generator_init(self)
+ |  
+ |  get_shape(self, arrName)
  |  
  |  load(self, *args)
  |  
@@ -74,7 +76,7 @@ class LOSE(builtins.object)
  |  
  |  __weakref__
  |      list of weak references to the object (if defined)
-```
+ ```
 
 `LOSE.newGroup(**groupNames)` is used to add/set(depends on the file mode) group(expandable array) names and shapes in the `.h5` file.
 
@@ -89,6 +91,9 @@ class LOSE(builtins.object)
 
 
 `LOSE.generator()` is an python generator obj used to iterate through data, `LOSE.iterItems` and `LOSE.iterOutput` have to be defined for it to work, more info on how they should be defined checkout `LOSE.generator() details`.
+
+
+`LOSE.generator_init()` has to be ran right before `LOSE.generator()` can be used.
 
 ## example usage
 
@@ -167,5 +172,7 @@ l.batch_size = 20 # some batch size, can be bigger then the dataset, but won't o
 l.limit = 10000 # lets say that the file has more data, but you only want to train on first 10000 samples
 
 l.shuffle = True # enable data shuffling for the generator
+
+l.generator_init() # initializing the generator
 
 some_mode.fit_generator(l.generator(), steps_per_epoch=50, epochs=1000, shuffle=False) # model.fit_generator() still can't shuffle the data, but LOSE.generator() can```
