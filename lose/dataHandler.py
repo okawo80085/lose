@@ -16,6 +16,9 @@ class LOSE:
 		self.limit = None
 		self.shuffle = False
 
+		self._a = []
+		self._b = []
+
 		self.batch_obj = '[:]'
 
 	def __repr__(self):
@@ -52,7 +55,7 @@ class LOSE:
 		with t.open_file(self.fname, mode='r') as f:
 			return eval('f.root.{}.shape'.format(arrName))
 
-	def generator(self):
+	def generator_init(self):
 		if self.iterItems is None or self.iterOutput is None or self.fname is None:
 			raise ValueError('self.iterItems and/or self.iterOutput and/or self.fname is empty')
 
@@ -61,13 +64,11 @@ class LOSE:
 
 		dataset_limit = self.get_shape(self.iterItems[0][0])[0]
 		#print (dataset_limit)
-		a = []
-		b = []
 		index = 0
 
 		while 1:
-			a.append(index)
-			b.append(index+self.batch_size)
+			self._a.append(index)
+			self._b.append(index+self.batch_size)
 
 			index += self.batch_size
 
@@ -78,13 +79,20 @@ class LOSE:
 			elif index >= dataset_limit:
 				break
 
+	def generator(self):
+		if self.iterItems is None or self.iterOutput is None or self.fname is None:
+			raise ValueError('self.iterItems and/or self.iterOutput and/or self.fname is empty')
+
+		if len(self.iterItems) != 2 or len(self.iterOutput) != 2:
+			raise ValueError('self.iterItems or self.iterOutput has wrong dimensions, self.iterItems is [[list of x array names], [list of y array names]] and self.iterOutput is the name map for them')
+
 		if self.shuffle:
 			np.random.seed(None)
 			st = np.random.get_state()
 			np.random.set_state(st)
-			np.random.shuffle(a)
+			np.random.shuffle(self._a)
 			np.random.set_state(st)
-			np.random.shuffle(b)
+			np.random.shuffle(self._b)
 
 		index = 0
 
@@ -97,7 +105,7 @@ class LOSE:
 				stepX = {}
 				stepY = {}
 				for name, key in zip(self.iterItems[0], self.iterOutput[0]):
-					x = eval('f.root.{}[{}:{}]'.format(name, a[index], b[index]))
+					x = eval('f.root.{}[{}:{}]'.format(name, self._a[index], self._b[index]))
 					if self.shuffle:
 						np.random.set_state(st)
 						np.random.shuffle(x)
@@ -105,7 +113,7 @@ class LOSE:
 					stepX[key] = x
 
 				for name, key in zip(self.iterItems[1], self.iterOutput[1]):
-					y = eval('f.root.{}[{}:{}]'.format(name, a[index], b[index]))
+					y = eval('f.root.{}[{}:{}]'.format(name, self._a[index], self._b[index]))
 					if self.shuffle:
 						np.random.set_state(st)
 						np.random.shuffle(y)
