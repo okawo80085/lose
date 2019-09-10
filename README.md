@@ -45,7 +45,7 @@ pip install -U lose
 
 #### methods
 ```
-Help on LOSE in module lose.dataHandler object:
+Help on class LOSE in module lose.dataHandler:
 
 class LOSE(builtins.object)
  |  Methods defined here:
@@ -57,8 +57,6 @@ class LOSE(builtins.object)
  |      Return repr(self).
  |  
  |  generator(self)
- |  
- |  generator_init(self)
  |  
  |  get_shape(self, arrName)
  |  
@@ -90,10 +88,7 @@ class LOSE(builtins.object)
 `LOSE.get_shape(groupName)` is used to get the shape of a single group, group has to be present in the `.h5` file.
 
 
-`LOSE.generator()` is an python generator obj used to iterate through data, `LOSE.iterItems` and `LOSE.iterOutput` have to be defined for it to work, more info on how they should be defined checkout `LOSE.generator() details`.
-
-
-`LOSE.generator_init()` has to be ran right before `LOSE.generator()` can be used.
+`LOSE.generator()` check `LOSE.generator() details` section, `LOSE.iterItems` and `LOSE.iterOutput` have to be defined.
 
 ## example usage
 
@@ -151,7 +146,7 @@ print (l.get_shape('x')) # (3, 20)
 print (l.get_shape('y')) # (3, 3)
 ```
 ## `LOSE.generator()` details
-`LOSE.generator()` is a python generator used to access data from a `.h5` file in `LOSE.batch_size` pieces without loading the hole file or the hole group into memory, also works with `model.fit_generator()`.
+`LOSE.generator()` is a python generator used to access data from a `.h5` file in `LOSE.batch_size` pieces without loading the hole file/group into memory, also works with `model.fit_generator()`, __have__ to be used with a `with` statement.
 
 `LOSE.iterItems` and `LOSE.iterOutput` __have__ to be defined by user first
 
@@ -164,15 +159,19 @@ from lose import LOSE
 l = LOSE()
 l.fname = 'path/to/you/save/file.h5' # path to data
 
-l.iterItems = [['x1', 'x2'], ['y']] # names of X groups and names of Y groups, all group names need to have most outer dim the same and be present in the .h5 file
+l.iterItems = [['x1', 'x2'], ['y']] # names of X and Y groups, all group names need to have batch dim the same and be present in the .h5 file
 l.iterOutput = [['input_1', 'input_2'], ['dense_5']] # names of model's layers the data will be cast on, group.shape[1:] needs to match the layer's input shape
 l.loopforever = True
 l.batch_size = 20 # some batch size, can be bigger then the dataset, but won't output more data, it will just loop over or stop the iteration if LOSE.loopforever is False
 
 l.limit = 10000 # lets say that the file has more data, but you only want to train on first 10000 samples
 
-l.shuffle = True # enable data shuffling for the generator
+l.shuffle = True # enable data shuffling for the generator, costs memory
 
-l.generator_init() # initializing the generator
+with l.generator() as generator:
 
-some_mode.fit_generator(l.generator(), steps_per_epoch=50, epochs=1000, shuffle=False) # model.fit_generator() still can't shuffle the data, but LOSE.generator() can```
+	some_mode.fit_generator(generator, steps_per_epoch=50, epochs=1000, shuffle=False) # model.fit_generator() still can't shuffle the data, but LOSE.generator() can
+```
+
+# bugs/problems
+report them.

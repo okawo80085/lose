@@ -1,5 +1,6 @@
 import numpy as np
 import tables as t
+from contextlib import contextmanager
 
 
 class LOSE:
@@ -55,7 +56,7 @@ class LOSE:
 		with t.open_file(self.fname, mode='r') as f:
 			return eval('f.root.{}.shape'.format(arrName))
 
-	def generator_init(self):
+	def _iterator_init(self):
 		if self.iterItems is None or self.iterOutput is None or self.fname is None:
 			raise ValueError('self.iterItems and/or self.iterOutput and/or self.fname is empty')
 
@@ -79,7 +80,7 @@ class LOSE:
 			elif index >= dataset_limit:
 				break
 
-	def generator(self):
+	def _iterator(self):
 		if self.iterItems is None or self.iterOutput is None or self.fname is None:
 			raise ValueError('self.iterItems and/or self.iterOutput and/or self.fname is empty')
 
@@ -128,3 +129,14 @@ class LOSE:
 					index = 0
 					if self.loopforever != True:
 						raise StopIteration
+
+	@contextmanager
+	def generator(self):
+		self._iterator_init()
+		gen = self._iterator
+
+		try:
+			yield gen
+
+		except:
+			raise
