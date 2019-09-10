@@ -166,7 +166,7 @@ l.batch_size = 20 # some batch size, can be bigger then the dataset, but won't o
 
 l.limit = 10000 # lets say that the file has more data, but you only want to train on first 10000 samples
 
-l.shuffle = True # enable data shuffling for the generator, costs memory
+l.shuffle = True # enable data shuffling for the generator, costs memory and time
 
 with l.generator() as generator:
 	some_mode.fit_generator(generator(), steps_per_epoch=50, epochs=1000, shuffle=False) # model.fit_generator() still can't shuffle the data, but LOSE.generator() can
