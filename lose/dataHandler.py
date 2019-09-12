@@ -130,6 +130,14 @@ class LOSE:
 					if self.loopforever != True:
 						raise StopIteration
 
+					elif self.shuffle:
+						np.random.seed(None)
+						st = np.random.get_state()
+						np.random.set_state(st)
+						np.random.shuffle(self._a)
+						np.random.set_state(st)
+						np.random.shuffle(self._b)
+
 	@contextmanager
 	def generator(self):
 		self._iterator_init()
