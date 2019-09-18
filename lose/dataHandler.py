@@ -1,5 +1,6 @@
 import numpy as np
 import tables as t
+import os
 from contextlib import contextmanager
 
 
@@ -23,11 +24,17 @@ class LOSE:
 		self.batch_obj = '[:]'
 
 	def __repr__(self):
-		if self.fname is None:
-			return '<hdf5 data handler, fname={}, fmode=\'{}\', atom={}>'.format(self.fname, self.fmode, self.atom)
-		else:
-			with t.open_file(self.fname, mode=self.fmode) as f:
-				return '<hdf5 data handler, fname={}, fmode=\'{}\', atom={}>\n\n.h5 file structure: {}'.format(self.fname, self.fmode, self.atom, f)
+		messsage = '<hdf5 data handler, fname={}, fmode=\'{}\', atom={}>'.format(self.fname, self.fmode, self.atom)
+		messsage += '\ngenerator parameters: iterItems={}, iterOutput={}, batch_size={}, limit={}, loopforever={}, shuffle={}'.format(self.iterItems, self.iterOutput, self.batch_size, self.limit, self.loopforever, self.shuffle)
+		if self.fname is not None:
+			try:
+				with t.open_file(self.fname, mode=self.fmode) as f:
+					messsage += '\nhdf5 file structure: {}'.format(f.__repr__())
+
+			except Exception as e:
+				messsage += '\nfailed to open file at \'{}\':{}, make sure it\'s a not corrupted hdf5 file and is a real file'.format(self.fname, e)
+
+		return messsage
 
 	def newGroup(self, **kwards):
 		with t.open_file(self.fname, mode=self.fmode) as f:
@@ -140,11 +147,45 @@ class LOSE:
 
 	@contextmanager
 	def generator(self):
-		self._iterator_init()
-		gen = self._iterator
-
 		try:
+			self._iterator_init()
+			gen = self._iterator
+
 			yield gen
 
 		except:
 			raise
+
+	@contextmanager
+	def make_generator(self, layerNames, limit=None, batch_size=1, shuffle=False, **kwards):
+		try:
+			if os.path.isfile('./temp.h5'):
+				os.unlink('./temp.h5')
+			self.fname = 'temp.h5'
+			self.fmode = 'a'
+			self.iterItems = layerNames
+			self.iterOutput = layerNames
+			self.limit = limit
+			self.batch_size = batch_size
+			self.shuffle = shuffle
+
+			d= {layerName: (0, *val.shape[1:]) for layerName, val in kwards.items()}
+
+			self.newGroup(**d)
+			self.save(**kwards)
+
+			del d
+			del kwards
+
+			self.fmode = 'r'
+
+			self._iterator_init()
+			gen = self._iterator
+
+			yield gen
+
+		except:
+			raise
+
+		finally:
+			os.unlink('./temp.h5')
