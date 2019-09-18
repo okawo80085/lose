@@ -195,7 +195,7 @@ x1 = np.zeros((num_samples, 200)) #data for the model
 x2 = np.zeros((num_samples, 150)) #data for the model
 y = np.zeros((num_samples, 800)) #data for the model
 
-with l.make_generator([['input_1', 'input_2'], ['dense_5']], shuffle=True, input_2=x2, input_1=x1, dense_5=y) as gen:
+with l.make_generator([['input_1', 'input_2'], ['dense_5']], batch_size=10, shuffle=True, input_2=x2, input_1=x1, dense_5=y) as gen:
 	del x1 #remove from memory
 	del x2 #remove from memory
 	del y #remove from memory
