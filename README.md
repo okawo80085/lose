@@ -7,6 +7,7 @@ lose, but in particular `lose.LOSE()`, is a helper class for handling data using
 >>> l = LOSE()
 >>> l
 <hdf5 data handler, fname=None, fmode='r', atom=Float32Atom(shape=(), dflt=0.0)>
+generator parameters: iterItems=None, iterOutput=None, batch_size=1, limit=None, loopforever=False, shuffle=False
 
 ```
 
