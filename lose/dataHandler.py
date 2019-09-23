@@ -57,7 +57,7 @@ class LOSE:
 				x = eval('f.root.{}{}'.format(key, self.batch_obj))
 				out.append(x)
 
-		return out
+		return *out
 
 	def get_shape(self, arrName):
 		with t.open_file(self.fname, mode='r') as f:
