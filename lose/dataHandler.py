@@ -7,7 +7,6 @@ from contextlib import contextmanager
 class LOSE:
 	def __init__(self):
 		self.fname = None
-		self.fmode = 'r'
 		self.atom = t.Float32Atom()
 
 		self.batch_size = 1
@@ -24,11 +23,11 @@ class LOSE:
 		self.batch_obj = '[:]'
 
 	def __repr__(self):
-		messsage = '<hdf5 data handler, fname={}, fmode=\'{}\', atom={}>'.format(self.fname, self.fmode, self.atom)
+		messsage = '<lose hdf5 data handler, fname={}, atom={}>'.format(self.fname, self.atom)
 		messsage += '\ngenerator parameters: iterItems={}, iterOutput={}, batch_size={}, limit={}, loopforever={}, shuffle={}'.format(self.iterItems, self.iterOutput, self.batch_size, self.limit, self.loopforever, self.shuffle)
 		if self.fname is not None:
 			try:
-				with t.open_file(self.fname, mode=self.fmode) as f:
+				with t.open_file(self.fname, mode='r') as f:
 					messsage += '\nhdf5 file structure: {}'.format(f.__repr__())
 
 			except Exception as e:
@@ -36,16 +35,33 @@ class LOSE:
 
 		return messsage
 
-	def newGroup(self, **kwards):
-		with t.open_file(self.fname, mode=self.fmode) as f:
-			for key, val in kwards.items():
-				f.create_earray(f.root, key, self.atom, val)
-				#print ([key], val)
+	def __str__(self):
+		messsage = '<lose hdf5 data handler, fname={}, atom={}>'.format(self.fname, self.atom)
+		if self.fname is not None:
+			try:
+				with t.open_file(self.fname, mode='r') as f:
+					messsage += '\nhdf5 file structure: {}'.format(f)
 
-			#print (f)
+			except Exception as e:
+				messsage += '\nfailed to open file at \'{}\':{}, make sure it\'s a not corrupted hdf5 file and is a real file'.format(self.fname, e)
+
+		return messsage		
+
+	def newGroup(self, fmode='a', **kwards):
+		if type(fmode) is not str or fmode not in ['a', 'w']:
+			raise ValueError('unexpected value passed to fmode, expected \'a\' or \'w\', got \'{}\''.format(fmode))
+
+		with t.open_file(self.fname, mode=fmode) as f:
+			for groupName, val in kwards.items():
+				f.create_earray(f.root, groupName, self.atom, val)
+
+	def removeGroup(self, *args):
+		with t.open_file(self.fname, mode='a') as f:
+			for groupName in args:
+				f.remove_node('/{}'.format(groupName), recursive=True)
 
 	def save(self, **kwards):
-		with t.open_file(self.fname, mode=self.fmode) as f:
+		with t.open_file(self.fname, mode='a') as f:
 			for key, val in kwards.items():
 				x = eval('f.root.{}'.format(key))
 				x.append(val)
@@ -57,9 +73,9 @@ class LOSE:
 				x = eval('f.root.{}{}'.format(key, self.batch_obj))
 				out.append(x)
 
-		return *out
+		return out
 
-	def get_shape(self, arrName):
+	def getShape(self, arrName):
 		with t.open_file(self.fname, mode='r') as f:
 			return eval('f.root.{}.shape'.format(arrName))
 
@@ -157,27 +173,23 @@ class LOSE:
 			raise
 
 	@contextmanager
-	def make_generator(self, layerNames, limit=None, batch_size=1, shuffle=False, **kwards):
+	def makeGenerator(self, layerNames, limit=None, batch_size=1, shuffle=False, **kwards):
 		try:
-			if os.path.isfile('./temp.h5'):
-				os.unlink('./temp.h5')
 			self.fname = 'temp.h5'
-			self.fmode = 'a'
+
 			self.iterItems = layerNames
 			self.iterOutput = layerNames
 			self.limit = limit
 			self.batch_size = batch_size
 			self.shuffle = shuffle
 
-			d= {layerName: (0, *val.shape[1:]) for layerName, val in kwards.items()}
+			d = {layerName: (0, *val.shape[1:]) for layerName, val in kwards.items()}
 
-			self.newGroup(**d)
+			self.newGroup(fmode='w', **d)
 			self.save(**kwards)
 
 			del d
 			del kwards
-
-			self.fmode = 'r'
 
 			self._iterator_init()
 			gen = self._iterator
