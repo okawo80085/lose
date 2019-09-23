@@ -74,12 +74,13 @@ class LOSE(builtins.object)
  |  ----------------------------------------------------------------------
  ```
 
-`LOSE.newGroup(fmode='a', **groupNames)` is used to append/write(depends on the `fmode` keywords argument, default is `'a'`) groups to a `.h5` file.
+`LOSE.newGroup(fmode='a', **groupNames)` is used to append/write(depends on the `fmode` keyword argument, default is `'a'`) group(s) to a `.h5` file.
+
 
 `LOSE.removeGroup(*groupNames)` is used for to remove group(s) from a file, provided the group(s) name.
 
 
-`LOSE.save(**groupNamesAndSahpes)` is used to save data(in append mode only) to a group into a `.h5` file, the data needs to have the same shape as `group.shape[1:]` the data was passed to, `LOSE.get_shape(groupName)` can be used to get the `group.shape`.
+`LOSE.save(**groupNamesAndSahpes)` is used to save data(in append mode only) to a group(s) into a `.h5` file, the data needs to have the same shape as `group.shape[1:]` the data was passed to, `LOSE.get_shape(groupName)` can be used to get the `group.shape`.
 
 
 `LOSE.load(*groupNames)` is used to load data(hole group or a slice, to load a slice change `LOSE.batch_obj` to a string with the desired slice, default is `"[:]"`) from a group, group has to be present in the `.h5` file.
@@ -108,7 +109,7 @@ exampleDataY = np.arange(3, dtype=np.float32)
 
 l.newGroup(fmode='w', x=(0, *exampleDataX.shape), y=(0, *exampleDataY.shape)) # creating new groups(ready for data saved to) in a file, if fmode is 'w' all groups in the file will be overwritten
 ```
-##### saving data to a group
+##### saving data to a group(s)
 ```python
 import numpy as np
 from lose import LOSE
@@ -122,7 +123,7 @@ exampleDataY = np.arange(3, dtype=np.float32)
 l.save(x=[exampleDataX, exampleDataX], y=[exampleDataY, exampleDataY]) # saving data into groups defined in the previous example
 l.save(y=[exampleDataY], x=[exampleDataX]) # the same thing
 ```
-##### loading data from a group within a file
+##### loading data from a group(s) within a file
 ```python
 import numpy as np
 from lose import LOSE
