@@ -86,7 +86,7 @@ class LOSE:
 		if len(self.iterItems) != 2 or len(self.iterOutput) != 2:
 			raise ValueError('self.iterItems or self.iterOutput has wrong dimensions, self.iterItems is [[list of x array names], [list of y array names]] and self.iterOutput is the name map for them')
 
-		dataset_limit = self.get_shape(self.iterItems[0][0])[0]
+		dataset_limit = self.getShape(self.iterItems[0][0])[0]
 		#print (dataset_limit)
 		index = 0
 
