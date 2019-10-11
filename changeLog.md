@@ -2,6 +2,7 @@
 
 ## 0.5v
 added `LOSE.renameGroup()`
+`LOSE.batch_obj` moved from class vars to `LOSE.load()` as a keyword argument
 minor non performance/syntax related changes
 
 ## 0.4.6v
@@ -9,7 +10,7 @@ typo related bug fix
 
 ## 0.4.5v
 added `LOSE.removeGroup()`
-`LOSE.fmode` moved from class vars to `LOSE.newGroup()` keyword argument
+`LOSE.fmode` moved from class vars to `LOSE.newGroup()` as a keyword argument
 `LOSE.get_shape()` renamed to `LOSE.getShape()`
 `LOSE.make_generator()` renamed to `LOSE.makeGenerator()`
 `LOSE.save()` now only works in append mode
