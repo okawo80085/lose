@@ -231,3 +231,5 @@ with l.make_generator([['input_1', 'input_2'], ['dense_5']], batch_size=10, shuf
 
 # bugs/problems/issues
 report them.
+
+[change log](changeLog.md)
