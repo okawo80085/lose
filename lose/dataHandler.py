@@ -5,8 +5,8 @@ from contextlib import contextmanager
 
 
 class LOSE:
-	def __init__(self):
-		self.fname = None
+	def __init__(self, fname=None):
+		self.fname = fname
 		self.atom = t.Float32Atom()
 
 		self.batch_size = 1
@@ -20,15 +20,13 @@ class LOSE:
 		self._a = []
 		self._b = []
 
-		self.batch_obj = '[:]'
-
 	def __repr__(self):
 		messsage = '<lose hdf5 data handler, fname={}, atom={}>'.format(self.fname, self.atom)
 		messsage += '\ngenerator parameters: iterItems={}, iterOutput={}, batch_size={}, limit={}, loopforever={}, shuffle={}'.format(self.iterItems, self.iterOutput, self.batch_size, self.limit, self.loopforever, self.shuffle)
 		if self.fname is not None:
 			try:
 				with t.open_file(self.fname, mode='r') as f:
-					messsage += '\nhdf5 file structure: {}'.format(f.__repr__())
+					messsage += '\nhdf5 file structure:\n{}'.format(f.__repr__())
 
 			except Exception as e:
 				messsage += '\nfailed to open file at \'{}\':{}, make sure it\'s a not corrupted hdf5 file and is a real file'.format(self.fname, e)
@@ -40,7 +38,7 @@ class LOSE:
 		if self.fname is not None:
 			try:
 				with t.open_file(self.fname, mode='r') as f:
-					messsage += '\nhdf5 file structure: {}'.format(f)
+					messsage += '\nhdf5 file structure:\n{}'.format(f)
 
 			except Exception as e:
 				messsage += '\nfailed to open file at \'{}\':{}, make sure it\'s a not corrupted hdf5 file and is a real file'.format(self.fname, e)
@@ -60,17 +58,23 @@ class LOSE:
 			for groupName in args:
 				f.remove_node('/{}'.format(groupName), recursive=True)
 
+	def renameGroup(self, **kwards):
+		with t.open_file(self.fname, mode='a') as f:
+			for oldName, newName in kwards.items():
+				x = eval('f.root.{}'.format(oldName))
+				f.rename_node(x, newName)
+
 	def save(self, **kwards):
 		with t.open_file(self.fname, mode='a') as f:
 			for key, val in kwards.items():
 				x = eval('f.root.{}'.format(key))
 				x.append(val)
 
-	def load(self, *args):
+	def load(self, *args, batch_obj='[:]'):
 		out = []
 		with t.open_file(self.fname, mode='r') as f:
 			for key in args:
-				x = eval('f.root.{}{}'.format(key, self.batch_obj))
+				x = eval('f.root.{}{}'.format(key, batch_obj))
 				out.append(x)
 
 		return out
@@ -86,7 +90,7 @@ class LOSE:
 		if len(self.iterItems) != 2 or len(self.iterOutput) != 2:
 			raise ValueError('self.iterItems or self.iterOutput has wrong dimensions, self.iterItems is [[list of x array names], [list of y array names]] and self.iterOutput is the name map for them')
 
-		dataset_limit = self.getShape(self.iterItems[0][0])[0]
+		dataset_limit = self.get_shape(self.iterItems[0][0])[0]
 		#print (dataset_limit)
 		index = 0
 
@@ -165,9 +169,8 @@ class LOSE:
 	def generator(self):
 		try:
 			self._iterator_init()
-			gen = self._iterator
 
-			yield gen
+			yield self._iterator
 
 		except:
 			raise
@@ -192,9 +195,8 @@ class LOSE:
 			del kwards
 
 			self._iterator_init()
-			gen = self._iterator
 
-			yield gen
+			yield self._iterator
 
 		except:
 			raise

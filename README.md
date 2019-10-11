@@ -21,11 +21,9 @@ pip install -U lose
 
 ## structure
 #### vars
-`LOSE.fname` is the path to  to the `.h5` file including the name and extension, default is `None`.
+`LOSE.fname` is the path to the `.h5` file including the name and extension, default is `None`.
 
 `LOSE.atom` recommended to be left at default, is the `dtype` for the data to be stored in, default is `tables.Float32Atom()` which results to arrays with `dtype==np.float32`.
-
-`LOSE.batch_obj` default is `'[:]'`, recommended to be left default, specifies the amount of data to be loaded by `LOSE.load()`, works like python list slicing, must be a string, default loads everything.
 
 **`LOSE.generator()` related vars:**
 
@@ -37,7 +35,7 @@ pip install -U lose
 
 `LOSE.iterItems` list of X group names and list of Y group names, default is `None`, required to be user defined for `LOSE.generator()` to work.
 
-`LOSE.iterOutput` list of X output names and list of Y output names, default is `None`, required to be user defined for `LOSE.generator()` to work.
+`LOSE.iterOutput` list of X output names and list of Y output names for `LOSE.iterItems` to be mapped to, default is `None`, required to be user defined for `LOSE.generator()` to work.
 
 `LOSE.shuffle` bool that enables shuffling of the data, default is `False`, shuffling is affected by `LOSE.limit` and `LOSE.batch_size`.
 
@@ -48,7 +46,7 @@ Help on LOSE in module lose.dataHandler object:
 class LOSE(builtins.object)
  |  Methods defined here:
  |  
- |  __init__(self)
+ |  __init__(self, fname=None)
  |      Initialize self.  See help(type(self)) for accurate signature.
  |  
  |  __repr__(self)
@@ -61,13 +59,15 @@ class LOSE(builtins.object)
  |  
  |  getShape(self, arrName)
  |  
- |  load(self, *args)
+ |  load(self, *args, batch_obj='[:]')
  |  
  |  makeGenerator(self, layerNames, limit=None, batch_size=1, shuffle=False, **kwards)
  |  
  |  newGroup(self, fmode='a', **kwards)
  |  
  |  removeGroup(self, *args)
+ |  
+ |  renameGroup(self, **kwards)
  |  
  |  save(self, **kwards)
  |  
@@ -78,6 +78,9 @@ class LOSE(builtins.object)
 
 
 `LOSE.removeGroup(*groupNames)` is used for to remove group(s) from a file, provided the group(s) name.
+
+
+`LOSE.renameGroup(**groupNames)` is used to rename group(s) within a `.h5` file, see examples below.
 
 
 `LOSE.save(**groupNamesAndSahpes)` is used to save data(in append mode only) to a group(s) into a `.h5` file, the data needs to have the same shape as `group.shape[1:]` the data was passed to, `LOSE.get_shape(groupName)` can be used to get the `group.shape`.
@@ -102,7 +105,7 @@ import numpy as np
 from lose import LOSE
 
 l = LOSE()
-l.fname = 'path/to/you/save/file.h5' # path to the .h5 file, has to be user defined before any methods can be used, default is None
+l.fname = 'path/to/your/save/file.h5' # path to the .h5 file, has to be user defined before any methods can be used, default is None
 
 exampleDataX = np.arange(20, dtype=np.float32)
 exampleDataY = np.arange(3, dtype=np.float32)
@@ -115,7 +118,7 @@ import numpy as np
 from lose import LOSE
 
 l = LOSE()
-l.fname = 'path/to/you/save/file.h5' # path to the .h5 file, has to be user defined before any methods can be used, default is None
+l.fname = 'path/to/your/save/file.h5' # path to the .h5 file, has to be user defined before any methods can be used, default is None
 
 exampleDataX = np.arange(20, dtype=np.float32)
 exampleDataY = np.arange(3, dtype=np.float32)
@@ -124,12 +127,13 @@ l.save(x=[exampleDataX, exampleDataX], y=[exampleDataY, exampleDataY]) # saving 
 l.save(y=[exampleDataY], x=[exampleDataX]) # the same thing
 ```
 ##### loading data from a group(s) within a file
+for this example file has data from the previous example
 ```python
 import numpy as np
 from lose import LOSE
 
 l = LOSE()
-l.fname = 'path/to/you/save/file.h5' # path to the .h5 file, has to be user defined before any methods can be used, default is None
+l.fname = 'path/to/your/save/file.h5' # path to the .h5 file, has to be user defined before any methods can be used, default is None
 
 x, y = l.load('x', 'y') # loading data from the .h5 file(has to be a real file) populated by previous examples
 y2compare, x2compare = l.load('y', 'x') # the same thing
@@ -137,27 +141,42 @@ y2compare, x2compare = l.load('y', 'x') # the same thing
 print (np.all(x == x2compare), np.all(y == y2compare)) # True True
 ```
 ##### getting the shape of a group
+for this example file has data from previous examples
 ```python
 import numpy as np
 from lose import LOSE
 
 l = LOSE()
-l.fname = 'path/to/you/save/file.h5' # path to the .h5 file(populated by previous examples), has to be user defined before any methods can be used, default is None
+l.fname = 'path/to/your/save/file.h5' # path to the .h5 file(populated by previous examples), has to be user defined before any methods can be used, default is None
 
 print (l.getShape('x')) # (3, 20)
 print (l.getShape('y')) # (3, 3)
 ```
+##### renaming group(s) in a file
+for this example file has data from previous examples
+```python
+import numpy as np
+from lose import LOSE
+
+l = LOSE('path/to/your/save/file.h5')
+x2compare, y2compare = l.load('x', 'y')
+print (l) # file structure before renaming any group(s)
+l.renameGroup(y='z', x='lol')
+lol, z = l.load('lol', 'z')
+print (l) # file structure after renaming group(s)
+print (np.all(x2compare == lol), np.all(y2compare == z)) # True True
+```
 ##### removing group(s) from a file
+for this example file has data from previous examples
 ```python
 from lose import LOSE
 
-l = LOSE()
-l.fname = 'path/to/you/save/file.h5' # path to the .h5 file(populated by previous examples), has to be user defined before any methods can be used, default is None
+l = LOSE(fname='path/to/your/save/file.h5')
 
-l.removeGroup('x', 'y') # removing the group(s)
+l.removeGroup('lol', 'z') # removing the group(s)
 
-x = l.load('x') # now this will result in an error because group 'x' was removed from the file
-``` 
+x = l.load('lol') # now this will result in an error because group 'x' was removed from the file
+```
 ## `LOSE.generator()` details
 `LOSE.generator()` is a python generator used to access data from a `hdf5` file in `LOSE.batch_size` pieces without loading the hole file/group into memory, also works with `tf.keras.model.fit_generator()`, __have__ to be used with a `with` context statement(see examples below).
 
@@ -173,8 +192,7 @@ for this example lets say that file has requested data in it and the model input
 import numpy as np
 from lose import LOSE
 
-l = LOSE()
-l.fname = 'path/to/you/save/file.h5' # path to data
+l = LOSE(fname='path/to/your/file/with/data.h5')
 
 l.iterItems = [['x1', 'x2'], ['y']] # names of X and Y groups, all group names need to have batch dim the same and be present in the .h5 file
 l.iterOutput = [['input_1', 'input_2'], ['dense_5']] # names of model's layers the data will be cast on, group.shape[1:] needs to match the layer's input shape
