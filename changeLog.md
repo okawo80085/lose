@@ -17,6 +17,7 @@ added `LOSE.removeGroup()`
 
 ## 0.4.4v
 typo
+
 non performance/syntax related changes
 
 ## 0.4.3v
@@ -42,6 +43,7 @@ performance upgrade for `LOSE.generator()`
 
 ## 0.1.1v-0.2v
 added shuffling for `LOSE.generator()`
+
 typos
 
 ## 0.1v
