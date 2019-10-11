@@ -3,6 +3,7 @@
 ## 0.5v
 added `LOSE.renameGroup()`
 `LOSE.batch_obj` moved from class vars to `LOSE.load()` as a keyword argument
+
 minor non performance/syntax related changes
 
 ## 0.4.6v
