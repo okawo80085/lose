@@ -16,9 +16,11 @@ class LOSE:
 		self.loopforever = False
 		self.limit = None
 		self.shuffle = False
+		self.mask_callback = None
 
 		self._a = []
 		self._b = []
+		self._useCallback = False
 
 	def __repr__(self):
 		messsage = '<lose hdf5 data handler, fname={}, atom={}>'.format(self.fname, self.atom)
@@ -51,7 +53,7 @@ class LOSE:
 
 		with t.open_file(self.fname, mode=fmode) as f:
 			for groupName, val in kwards.items():
-				f.create_earray(f.root, groupName, self.atom, val)
+				f.create_earray(f.root, groupName, self.atom, (0, *val))
 
 	def removeGroup(self, *args):
 		with t.open_file(self.fname, mode='a') as f:
@@ -89,6 +91,9 @@ class LOSE:
 
 		if len(self.iterItems) != 2 or len(self.iterOutput) != 2:
 			raise ValueError('self.iterItems or self.iterOutput has wrong dimensions, self.iterItems is [[list of x array names], [list of y array names]] and self.iterOutput is the name map for them')
+
+		if not isinstance(self.mask_callback, type(None)):
+			self._useCallback = True
 
 		dataset_limit = self.getShape(self.iterItems[0][0])[0]
 		#print (dataset_limit)
@@ -148,7 +153,10 @@ class LOSE:
 
 					stepY[key] = y
 
-				yield (stepX, stepY)
+				if self._useCallback:
+					yield self.mask_callback((stepX, stepY))
+				else:
+					yield (stepX, stepY)
 
 				index += 1
 
@@ -166,8 +174,9 @@ class LOSE:
 						np.random.shuffle(self._b)
 
 	@contextmanager
-	def generator(self):
+	def generator(self, mask_callback=None):
 		try:
+			self.mask_callback = mask_callback
 			self._iterator_init()
 
 			yield self._iterator
@@ -176,7 +185,7 @@ class LOSE:
 			raise
 
 	@contextmanager
-	def makeGenerator(self, layerNames, limit=None, batch_size=1, shuffle=False, **kwards):
+	def makeGenerator(self, layerNames, limit=None, batch_size=1, shuffle=False, maskCallback=None, **kwards):
 		try:
 			self.fname = 'temp.h5'
 
@@ -185,8 +194,9 @@ class LOSE:
 			self.limit = limit
 			self.batch_size = batch_size
 			self.shuffle = shuffle
+			self.mask_callback = maskCallback
 
-			d = {layerName: (0, *val.shape[1:]) for layerName, val in kwards.items()}
+			d = {layerName: val.shape[1:] for layerName, val in kwards.items()}
 
 			self.newGroup(fmode='w', **d)
 			self.save(**kwards)
