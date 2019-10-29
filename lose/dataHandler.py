@@ -70,11 +70,11 @@ class LOSE:
 				x = eval('f.root.{}'.format(key))
 				x.append(val)
 
-	def load(self, *args, batch_obj='[:]'):
+	def load(self, *args, batch_obj=':'):
 		out = []
 		with t.open_file(self.fname, mode='r') as f:
 			for key in args:
-				x = eval('f.root.{}{}'.format(key, batch_obj))
+				x = eval('f.root.{}[np.s_[{}]]'.format(key, batch_obj))
 				out.append(x)
 
 		return out
@@ -90,7 +90,7 @@ class LOSE:
 		if len(self.iterItems) != 2 or len(self.iterOutput) != 2:
 			raise ValueError('self.iterItems or self.iterOutput has wrong dimensions, self.iterItems is [[list of x array names], [list of y array names]] and self.iterOutput is the name map for them')
 
-		dataset_limit = self.get_shape(self.iterItems[0][0])[0]
+		dataset_limit = self.getShape(self.iterItems[0][0])[0]
 		#print (dataset_limit)
 		index = 0
 

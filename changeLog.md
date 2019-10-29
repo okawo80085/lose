@@ -1,5 +1,8 @@
 # Change log
 
+## 0.5.1v
+typo related bug fix from 0.4.5v
+
 ## 0.5v
 added `LOSE.renameGroup()`
 

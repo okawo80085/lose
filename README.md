@@ -59,7 +59,7 @@ class LOSE(builtins.object)
  |  
  |  getShape(self, arrName)
  |  
- |  load(self, *args, batch_obj='[:]')
+ |  load(self, *args, batch_obj=':')
  |  
  |  makeGenerator(self, layerNames, limit=None, batch_size=1, shuffle=False, **kwards)
  |  
