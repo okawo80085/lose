@@ -1,12 +1,12 @@
 import setuptools
 
-with open('readmePipy.md') as f:
+with open('readmePipy.md', 'r') as f:
 	ld = f.read()
 
 setuptools.setup(
 	name="lose",
 	version="0.6",
-	description="A helper package for hdf5 data handling",
+	description="A helper package for handling data in hdf5 format",
 	long_description=ld,
 	long_description_content_type="text/markdown",
 	author="okawo",
