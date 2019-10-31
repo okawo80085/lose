@@ -1,5 +1,14 @@
 # Change log
 
+## 0.6v
+`LOSE.generator()` and `LOSE.makeGenerator()` got a new optional keyword argument, `mask_callback`, which accepts a function, `None` disables the mask, refer to [readme](README.md) for examples
+
+`LOSE.newGroup()` now doesn't need a zeros before the shape of the group
+
+`batch_obj` keyword argument in `LOSE.load()` now accepts any slice object or slice like string
+
+minor changes
+
 ## 0.5.1v
 typo related bug fix from 0.4.5v
 

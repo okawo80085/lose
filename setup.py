@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setuptools.setup(
 	name="lose",
-	version="0.5.1",
+	version="0.6",
 	description="A helper package for hdf5 data handling",
 	long_description=ld,
 	long_description_content_type="text/markdown",
@@ -18,10 +18,12 @@ setuptools.setup(
 	classifiers=[
 		"Programming Language :: Python :: 3",
 		"Programming Language :: Python :: 3.6",
+		"Programming Language :: Python :: 3.7",
 		"Operating System :: OS Independent",
 		"Intended Audience :: Developers",
 		"Intended Audience :: Education",
 		"Intended Audience :: Science/Research",
+		"Topic :: Software Development :: Libraries :: Python Modules",
 		"Topic :: Scientific/Engineering :: Artificial Intelligence",
 	],
 	python_requires='>=3',

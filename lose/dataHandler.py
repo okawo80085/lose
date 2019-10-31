@@ -45,7 +45,7 @@ class LOSE:
 			except Exception as e:
 				messsage += '\nfailed to open file at \'{}\':{}, make sure it\'s a not corrupted hdf5 file and is a real file'.format(self.fname, e)
 
-		return messsage		
+		return messsage
 
 	def newGroup(self, fmode='a', **kwards):
 		if type(fmode) is not str or fmode not in ['a', 'w']:
@@ -82,21 +82,33 @@ class LOSE:
 		return out
 
 	def getShape(self, arrName):
+		return self.getShapes(arrName)[0]
+
+	def getShapes(self, *arrNames):
+		out = []
 		with t.open_file(self.fname, mode='r') as f:
-			return eval('f.root.{}.shape'.format(arrName))
+			for i in arrNames:
+				out.append(eval('f.root.{}.shape'.format(i)))
+
+		return out
 
 	def _iterator_init(self):
-		if self.iterItems is None or self.iterOutput is None or self.fname is None:
-			raise ValueError('self.iterItems and/or self.iterOutput and/or self.fname is empty')
+		if self.fname is None:
+			raise ValueError('self.fname is empty')
+
+		if self.iterItems is None or self.iterOutput is None:
+			raise ValueError('self.iterItems and/or self.iterOutput are not defined')
 
 		if len(self.iterItems) != 2 or len(self.iterOutput) != 2:
-			raise ValueError('self.iterItems or self.iterOutput has wrong dimensions, self.iterItems is [[list of x array names], [list of y array names]] and self.iterOutput is the name map for them')
+			raise ValueError('self.iterItems or self.iterOutput has wrong dimensions, self.iterItems has to be [[list of x array names], [list of y array names]] and self.iterOutput is the name map self.iterItems folowing the same dimensions')
 
-		if not isinstance(self.mask_callback, type(None)):
+		if not isinstance(self.mask_callback, type(None)) and hasattr(self.mask_callback, '__call__'):
 			self._useCallback = True
 
-		dataset_limit = self.getShape(self.iterItems[0][0])[0]
-		#print (dataset_limit)
+		L = [i[0] for i in self.getShapes(*self.iterItems[0])]
+		L.extend([i[0] for i in self.getShapes(*self.iterItems[1])])
+		dataset_limit = min(L)
+
 		index = 0
 
 		while 1:
@@ -185,7 +197,7 @@ class LOSE:
 			raise
 
 	@contextmanager
-	def makeGenerator(self, layerNames, limit=None, batch_size=1, shuffle=False, maskCallback=None, **kwards):
+	def makeGenerator(self, layerNames, limit=None, batch_size=1, shuffle=False, mask_callback=None, **kwards):
 		try:
 			self.fname = 'temp.h5'
 
@@ -194,7 +206,7 @@ class LOSE:
 			self.limit = limit
 			self.batch_size = batch_size
 			self.shuffle = shuffle
-			self.mask_callback = maskCallback
+			self.mask_callback = mask_callback
 
 			d = {layerName: val.shape[1:] for layerName, val in kwards.items()}
 
