@@ -1,5 +1,10 @@
 # Change log
 
+## 0.6.1v
+readme for pypi.org changed
+
+minor non code related changes
+
 ## 0.6v
 `LOSE.generator()` and `LOSE.makeGenerator()` got a new optional keyword argument, `mask_callback`, which accepts a function, `None` disables the mask, refer to [readme](README.md) for examples
 
