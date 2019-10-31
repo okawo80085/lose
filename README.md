@@ -281,4 +281,4 @@ with l.make_generator([['input_1', 'input_2'], ['dense_5']], batch_size=10, mask
 if you find any, raise an issue.
 
 # change log
-[change log(github only)](changeLog.md)
+[change log](changeLog.md)

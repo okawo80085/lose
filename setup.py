@@ -1,6 +1,6 @@
 import setuptools
 
-with open('README.md') as f:
+with open('readmePipy.md') as f:
 	ld = f.read()
 
 setuptools.setup(
