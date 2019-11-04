@@ -20,3 +20,6 @@ pip install -U lose
 
 # documentation
 [documentation](https://github.com/okawo80085/lose/blob/master/README.md), [change log](https://github.com/okawo80085/lose/blob/master/changeLog.md)
+
+# bugs/issues
+if you find any, raise an issue [here](https://github.com/okawo80085/lose/issues)
