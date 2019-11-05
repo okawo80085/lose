@@ -203,7 +203,7 @@ l = LOSE(fname='path/to/your/save/file.h5')
 
 l.removeGroup('lol', 'z') # removing the group(s)
 
-x = l.load('lol') # now this will result in an error because group 'x' was removed from the file
+x = l.load('lol') # now this will result in an error because group 'lol' was removed from the file
 ```
 ## generator details
 `LOSE.generator(mask_callback=None)` is a python generator used to access data from a `hdf5` file in `LOSE.batch_size` pieces without loading the hole file/group into memory, also works with `tf.keras.model.fit_generator()`, __have__ to be used with a `with` context statement(see examples below).

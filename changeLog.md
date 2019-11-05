@@ -1,5 +1,10 @@
 # Change log
 
+## 0.6.2v
+file name typo
+
+minor changes
+
 ## 0.6.1v
 readme for pypi.org changed
 
