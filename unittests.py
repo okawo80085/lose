@@ -118,7 +118,7 @@ class Tests(u.TestCase):
 
 		self.assertEqual(np.all(a==X[:5]), np.all(b==Y[:5]), 'should be equal')
 
-	def test_load_invalid1(self):
+	def test_load_invalid(self):
 		if os.path.isfile(self.l.fname):
 			os.unlink(self.l.fname)
 
@@ -215,6 +215,7 @@ class Tests(u.TestCase):
 		self.assertEqual(a, X.shape, 'should be equal')
 		self.assertEqual(b, Y.shape, 'should be equal')
 
+	@u.skipIf(v > [0, 4, 5], 'version 0.4.5 and below only')
 	def test_getShapes_valid_old(self):
 		if os.path.isfile(self.l.fname):
 			os.unlink(self.l.fname)
@@ -225,12 +226,13 @@ class Tests(u.TestCase):
 		self.l.newGroup(fmode='w', x=X.shape[1:], y=Y.shape[1:])
 		self.l.save(x=X, y=Y)
 
-		a = self.l.getShape('x')
-		b = self.l.getShape('y')
+		a = self.l.get_hape('x')
+		b = self.l.get_hape('y')
 
 		self.assertEqual(a, X.shape, 'should be equal')
 		self.assertEqual(b, Y.shape, 'should be equal')
 
+	@u.skipIf(v < [0, 4, 5], 'version 0.4.5 and up only')
 	def test_getShapes_invalid(self):
 		if os.path.isfile(self.l.fname):
 			os.unlink(self.l.fname)
@@ -244,6 +246,11 @@ class Tests(u.TestCase):
 		with self.assertRaises(t.exceptions.NoSuchNodeError):
 			a = self.l.getShape('g')
 
+	# def test_generator_valid(self):
+	# 	if os.path.isfile(self.l.fname):
+	# 		os.unlink(self.l.fname)
+
+		
 
 	def tearDown(self):
 		if os.path.isfile(self.l.fname):

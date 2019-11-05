@@ -175,7 +175,7 @@ class LOSE:
 				if index >= len(self._a):
 					index = 0
 					if self.loopforever != True:
-						raise StopIteration
+						break
 
 					elif self.shuffle:
 						np.random.seed(None)
@@ -184,6 +184,7 @@ class LOSE:
 						np.random.shuffle(self._a)
 						np.random.set_state(st)
 						np.random.shuffle(self._b)
+		return
 
 	@contextmanager
 	def generator(self, mask_callback=None):
@@ -199,7 +200,7 @@ class LOSE:
 	@contextmanager
 	def makeGenerator(self, layerNames, limit=None, batch_size=1, shuffle=False, mask_callback=None, **kwards):
 		try:
-			self.fname = 'temp.h5'
+			self.fname = './temp.h5'
 
 			self.iterItems = layerNames
 			self.iterOutput = layerNames
@@ -224,4 +225,5 @@ class LOSE:
 			raise
 
 		finally:
-			os.unlink('./temp.h5')
+			if os.path.isfile('./temp.h5'):
+				os.unlink('./temp.h5')
