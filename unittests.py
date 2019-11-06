@@ -223,7 +223,7 @@ class Tests(u.TestCase):
 		X = np.zeros((10, 5, 10))
 		Y = np.zeros((10, 5))
 
-		self.l.newGroup(fmode='w', x=X.shape[1:], y=Y.shape[1:])
+		self.l.newGroup(fmode='w', x=(0, X.shape[1:]), y=(0, Y.shape[1:]))
 		self.l.save(x=X, y=Y)
 
 		a = self.l.get_hape('x')
