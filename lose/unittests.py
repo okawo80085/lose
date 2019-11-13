@@ -255,6 +255,3 @@ class Tests(u.TestCase):
 	def tearDown(self):
 		if os.path.isfile(self.l.fname):
 			os.unlink(self.l.fname)
-
-if __name__ == '__main__':
-	u.main()
