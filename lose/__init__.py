@@ -1,5 +1,7 @@
+import os
 from .dataHandler import LOSE
 
-__version__ = '0.6.3'
+__version__ = '0.6.4'
 
-print ('(;^ω^)')
+if os.name != 'nt':
+	print ('(;^ω^)')
