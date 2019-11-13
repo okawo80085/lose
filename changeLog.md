@@ -1,5 +1,14 @@
 # Change log
 
+## 0.6.4v
+windows only bug fixed
+
+## 0.6.3v
+added partial unit tests to lose, to run them do
+```python
+python3 -m lose -v
+```
+
 ## 0.6.2v
 file name typo
 
