@@ -1,3 +1,4 @@
+![](https://github.com/okawo80085/lose/workflows/python_unittests/badge.svg)
 # lose
 
 lose, but in particular `lose.LOSE`, is a helper class for handling data using `hdf5` file format and `PyTables`
