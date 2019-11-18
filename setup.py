@@ -5,14 +5,14 @@ with open('readmePypi.md', 'r') as f:
 
 setuptools.setup(
 	name="lose",
-	version="0.6.5",
+	version="0.6.6",
 	description="A helper package for handling data in hdf5 format",
 	long_description=ld,
 	long_description_content_type="text/markdown",
 	author="okawo",
 	author_email="okawo.198@gmail.com",
 	url="https://github.com/okawo80085/lose",
-	packages=['lose'],
+	packages=setuptools.find_packages(),
 	install_requires=['tables', 'numpy'],
 	license='MIT',
 	classifiers=[

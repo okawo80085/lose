@@ -1,9 +1,14 @@
 # Change log
 
+## 0.6.6v
+unit tests related bug fix
+
+unit test version: `0.1`
+
 ## 0.6.5v
 unit test usage changed, also unit tests is a module now(since unit test code is separate from the main library), refer to the [readme](README.md/#unit-tests) for more info
 
-current unit test version: `0.1`
+unit test version: `0.1`
 
 ## 0.6.4v
 windows only bug fixed

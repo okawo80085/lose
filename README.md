@@ -28,8 +28,8 @@ pip install -U lose
 2. [Example usage](#example-usage)
 3. [Generator details](#generator-details)
 4. [Bugs or problems](#bugs-or-problems)
-5. [Change log](#change-log)
-6. [Unit tests](#unit-tests)
+5. [Unit tests](#unit-tests)
+6. [Change log](#change-log)
 
 ## structure
 #### vars
