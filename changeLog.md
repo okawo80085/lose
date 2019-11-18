@@ -1,5 +1,10 @@
 # Change log
 
+## 0.6.5v
+unit test usage changed, also unit tests is a module now(since unit test code is separate from the main library), refer to the [readme](README.md/#unit-tests) for more info
+
+current unit test version: `0.1`
+
 ## 0.6.4v
 windows only bug fixed
 
@@ -20,7 +25,7 @@ readme for pypi.org changed
 minor non code related changes
 
 ## 0.6v
-`LOSE.generator()` and `LOSE.makeGenerator()` got a new optional keyword argument, `mask_callback`, which accepts a function, `None` disables the mask, refer to [readme](README.md) for examples
+`LOSE.generator()` and `LOSE.makeGenerator()` got a new optional keyword argument, `mask_callback`, which accepts a function, `None` disables the mask, refer to the [readme](README.md/#generator-details) for examples
 
 `LOSE.newGroup()` now doesn't need a zeros before the shape of the group
 

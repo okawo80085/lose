@@ -29,6 +29,7 @@ pip install -U lose
 3. [Generator details](#generator-details)
 4. [Bugs or problems](#bugs-or-problems)
 5. [Change log](#change-log)
+6. [Unit tests](#unit-tests)
 
 ## structure
 #### vars
@@ -276,6 +277,25 @@ with l.make_generator([['input_1', 'input_2'], ['dense_5']], batch_size=10, mask
 	del y #remove from memory
 
 	some_model.fit_generator(gen(), steps_per_epoch=100, epochs=10000, shuffle=False) # again data can't be shuffled by model.fit_generator(), shuffling should be done by the generator
+```
+
+# unit tests
+to get the current unit test version run
+```python
+python3 -m lose.test --version
+```
+or
+```python
+python -m lose.test --version
+```
+
+to actually test the code run
+```python
+python3 -m lose.test
+```
+or
+```python
+python -m lose.test
 ```
 
 # bugs or problems
