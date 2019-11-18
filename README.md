@@ -281,11 +281,11 @@ with l.make_generator([['input_1', 'input_2'], ['dense_5']], batch_size=10, mask
 
 # unit tests
 to get the current unit test version run
-```python
+```
 python3 -m lose.test --version
 ```
 or
-```python
+```
 python -m lose.test --version
 ```
 
