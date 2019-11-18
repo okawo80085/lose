@@ -24,4 +24,4 @@ jobs:
         pip install -U lose
     - name: unittest, python ${{ matrix.python-version }}
       run: |
-        python -m lose -v
+        python -m lose.test -v
