@@ -18,8 +18,7 @@ class LOSE:
 		self.shuffle = False
 		self.mask_callback = None
 
-		self._a = []
-		self._b = []
+		self._slices = []
 		self._useCallback = False
 
 	def __repr__(self):
@@ -112,8 +111,7 @@ class LOSE:
 		index = 0
 
 		while 1:
-			self._a.append(index)
-			self._b.append(index+self.batch_size)
+			self._slices.append(np.s_[index:index+self.batch_size])
 
 			index += self.batch_size
 
@@ -131,59 +129,43 @@ class LOSE:
 		if len(self.iterItems) != 2 or len(self.iterOutput) != 2:
 			raise ValueError('self.iterItems or self.iterOutput has wrong dimensions, self.iterItems is [[list of x array names], [list of y array names]] and self.iterOutput is the name map for them')
 
-		if self.shuffle:
-			np.random.seed(None)
-			st = np.random.get_state()
-			np.random.set_state(st)
-			np.random.shuffle(self._a)
-			np.random.set_state(st)
-			np.random.shuffle(self._b)
-
-		index = 0
-
 		with t.open_file(self.fname, mode='r') as f:
 			while 1:
 				if self.shuffle:
 					np.random.seed(None)
-					st = np.random.get_state()
+					np.random.shuffle(self._slices)
 
-				stepX = {}
-				stepY = {}
-				for name, key in zip(self.iterItems[0], self.iterOutput[0]):
-					x = eval('f.root.{}[{}:{}]'.format(name, self._a[index], self._b[index]))
+				for cheeseSlice in self._slices:
 					if self.shuffle:
-						np.random.set_state(st)
-						np.random.shuffle(x)
-
-					stepX[key] = x
-
-				for name, key in zip(self.iterItems[1], self.iterOutput[1]):
-					y = eval('f.root.{}[{}:{}]'.format(name, self._a[index], self._b[index]))
-					if self.shuffle:
-						np.random.set_state(st)
-						np.random.shuffle(y)
-
-					stepY[key] = y
-
-				if self._useCallback:
-					yield self.mask_callback((stepX, stepY))
-				else:
-					yield (stepX, stepY)
-
-				index += 1
-
-				if index >= len(self._a):
-					index = 0
-					if self.loopforever != True:
-						break
-
-					elif self.shuffle:
 						np.random.seed(None)
 						st = np.random.get_state()
-						np.random.set_state(st)
-						np.random.shuffle(self._a)
-						np.random.set_state(st)
-						np.random.shuffle(self._b)
+
+					stepX = {}
+					stepY = {}
+					for name, key in zip(self.iterItems[0], self.iterOutput[0]):
+						x = eval('f.root.{}[{}]'.format(name, cheeseSlice))
+						if self.shuffle:
+							np.random.set_state(st)
+							np.random.shuffle(x)
+
+						stepX[key] = x
+
+					for name, key in zip(self.iterItems[1], self.iterOutput[1]):
+						y = eval('f.root.{}[{}]'.format(name, cheeseSlice))
+						if self.shuffle:
+							np.random.set_state(st)
+							np.random.shuffle(y)
+
+						stepY[key] = y
+
+					if self._useCallback:
+						yield self.mask_callback((stepX, stepY))
+					else:
+						yield (stepX, stepY)
+
+				if self.loopforever != True:
+					break
+
 		return
 
 	@contextmanager

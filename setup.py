@@ -5,7 +5,7 @@ with open('readmePypi.md', 'r') as f:
 
 setuptools.setup(
 	name="lose",
-	version="0.6.6",
+	version="0.6.7",
 	description="A helper package for handling data in hdf5 format",
 	long_description=ld,
 	long_description_content_type="text/markdown",
