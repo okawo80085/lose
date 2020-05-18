@@ -2,9 +2,15 @@ import numpy as np
 import tables as t
 import os
 from contextlib import contextmanager
+import warnings
 
+
+################old shit#####################
 
 class LOSE:
+	'''
+	old code and bad ideas!
+	'''
 	def __init__(self, fname=None):
 		self.fname = fname
 		self.atom = t.Float32Atom()
@@ -209,3 +215,242 @@ class LOSE:
 		finally:
 			if os.path.isfile('./temp.h5'):
 				os.unlink('./temp.h5')
+
+#############################################
+
+class Loser(object):
+	'''
+	base data handler
+
+	use in a context manager to enable fast mode
+
+	use fast mode if you call load or save too frequently
+	'''
+
+	def __init__(self, fname, *, verboseRepr=False, **k):
+		'''
+		:fname: file path
+		:verboseRepr: do i need to explain this?
+		'''
+		self._fname = fname
+		self._fObj = None
+		self._verbose = verboseRepr
+		self._fmode = 'a'
+
+	def __repr__(self):
+		'''
+		fucking guess
+		'''
+		s = f'<{self.__class__.__module__}.{self.__class__.__name__} fname="{self._fname}", fast_active={self._fObj is not None}, verboseRepr={self._verbose} at {hex(id(self))}>'
+
+		if self._verbose:
+			if os.path.isfile(self._fname):
+				if self._fObj is None:
+					with self:
+						t = f'\n{self._fObj}'
+
+				else:
+					t = f'\n{self._fObj}'
+			else:
+				t = '\nfile doesn\'t exist' 
+
+			s += t
+
+		return s
+
+	def __call__(self, fmode='a'):
+		'''
+		lame fix to pass :fmode: to the context manager
+		'''
+		self._fmode = fmode
+		return self
+
+	def __enter__(self):
+		self._fObj = t.open_file(self._fname, mode=self._fmode)
+
+	def __exit__(self, *exp):
+		try:
+			if self._fObj is not None:
+				self._fObj.close()
+
+		finally:
+			self._fObj = None
+
+
+	def new_group(self, fmode='a', atom=t.Float32Atom(), **groups):
+		'''
+		creates new group(s) using :atom: with :fmode:
+
+		example: new_group(x=(10, 2), y=(2, 1))
+		'''
+		assert self._fObj is None, 'fast is active'
+		if fmode not in ['a', 'w']:
+			raise ValueError(f'bad fmode value: \'{fmode}\'')
+
+		with t.open_file(self._fname, mode=fmode) as f:
+			for groupName, val in groups.items():
+				f.create_earray(f.root, groupName, atom, (0, *val))
+
+
+	def save(self, **data):
+		'''
+		saves data
+		'''
+		if self._fObj is None:
+			with t.open_file(self._fname, mode='a') as f:
+				for key, val in data.items():
+					x = eval('f.root.{}'.format(key))
+					x.append(val)
+		else:
+			for key, val in data.items():
+				x = eval('self._fObj.root.{}'.format(key))
+				x.append(val)
+
+	def load(self, *groups, batch_obj=':'):
+		'''
+		loads data
+
+		:bathc_obj: slice like object to specify how much to load
+		'''
+		out = []
+		if self._fObj is None:
+			with t.open_file(self._fname, mode='r') as f:
+				for key in groups:
+					x = eval('f.root.{}[np.s_[{}]]'.format(key, batch_obj))
+					out.append(x)
+
+		else:
+			for key in groups:
+				x = eval('self._fObj.root.{}[np.s_[{}]]'.format(key, batch_obj))
+				out.append(x)
+
+		return out
+
+	def get_shapes(self, *groups):
+		'''
+		gets group shapes
+		'''
+		out = []
+		if self._fObj is None:
+			with t.open_file(self._fname, mode='r') as f:
+				for i in groups:
+					out.append(eval('f.root.{}.shape'.format(i)))
+
+		else:
+			for i in groups:
+				out.append(eval('self._fObj.root.{}.shape'.format(i)))
+
+		return out
+
+	def remove_group(self, *groups):
+		'''
+		removes groups
+		'''
+		assert self._fObj is None, 'fast is active'
+		with t.open_file(self.fname, mode='a') as f:
+			for groupName in groups:
+				f.remove_node('/{}'.format(groupName), recursive=True)
+
+	def rename_group(self, **kwards):
+		'''
+		renames groups
+		'''
+		assert self._fObj is None, 'fast is active'
+		with t.open_file(self.fname, mode='a') as f:
+			for oldName, newName in kwards.items():
+				x = eval('f.root.{}'.format(oldName))
+				f.rename_node(x, newName)
+
+class HumanIterator(Loser):
+	'''
+	iterator
+	'''
+
+	def __init__(self, fname, *groups, batch_size=5, limit=-1, seed=None, shuffle=False, loopforever=False, **kwards):
+		'''
+		:fname: file path
+		:groups: group names
+		:batch_size: load batch size
+		:limit: number of rows to load, negative goes from the end
+		:seed: shuffle seed
+		:shuffle: shuffle?
+		:loopforever: loop for ever?
+		'''
+		super().__init__(fname, **kwards)
+		self.groups = groups
+
+		self.batch_size = batch_size
+		self.limit = limit
+		self.loopforever = loopforever
+		self.seed = seed
+		self.shuffle = shuffle
+
+		self._context = False
+
+		self.currentIndex = 0
+
+	def __enter__(self):
+		self._context = True
+		self._fObj = t.open_file(self._fname, mode='r')
+
+
+	def __exit__(self, *exp):
+		self._context = False
+		try:
+			if self._fObj is not None:
+				self._fObj.close()
+
+		finally:
+			self._fObj = None
+
+	def __iter__(self):
+		np.random.seed(self.seed)
+		L = [i[0] for i in self.get_shapes(*self.groups)]
+		dataset_limit = min(L)
+
+		self._slices = []
+
+		index = 0
+
+		while 1:
+			self._slices.append(np.s_[index:index+self.batch_size])
+
+			index += self.batch_size
+
+
+			if self.limit < 0:
+				if index >= dataset_limit + self.limit:
+					break
+
+			elif index >= self.limit:
+				break
+
+		if not self._context:
+			warnings.warn('slow mode is active, use a context manager!')
+
+		return self
+
+	def __next__(self):
+		if self.currentIndex < len(self._slices):
+			self.currentIndex += 1
+			if not self.shuffle:
+				return self.load(*self.groups, batch_obj=self._slices[self.currentIndex-1])
+			else:
+				d = self.load(*self.groups, batch_obj=self._slices[self.currentIndex-1])
+				st = np.random.get_state()
+				h = 0
+				while h<len(d):
+					np.random.set_state(st)
+					np.random.shuffle(d[h])
+					h+= 1
+
+				return d
+
+
+		if self.loopforever:
+			if self.shuffle:
+				np.random.shuffle(self._slices)
+			self.currentIndex = 0
+			return self.load(*self.groups, batch_obj=self._slices[0])
+
+		raise StopIteration

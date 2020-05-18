@@ -1,5 +1,14 @@
 # Change log
 
+## 1.0.0v
+breaking change
+
+whatever
+
+blah blah blah
+
+also fuck writing unit tests
+
 ## 0.6.6v
 unit tests related bug fix
 
