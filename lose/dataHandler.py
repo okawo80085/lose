@@ -281,7 +281,9 @@ class Loser(object):
 		'''
 		creates new group(s) using :atom: with :fmode:
 
-		example: new_group(x=(10, 2), y=(2, 1))
+		example:
+			l.new_group(x=(2, 2), y=(2,))  # creates 2 new labels placeholders with shapes (n, 2, 2), and (n, 2)
+			l.new_group(z=(64, 64, 2))  # creates 1 new label placeholder with shapes (n, 64, 64, 2)
 		'''
 		assert self._fObj is None, 'fast is active'
 		if fmode not in ['a', 'w']:
@@ -295,7 +297,14 @@ class Loser(object):
 	def save(self, **data):
 		'''
 		saves data
+
+		:data: kwarg dict of {'label name': np.ndarray, ...}, Dict[str, np.ndarray]
+
+		example:
+			l.save(x=np.zeros((1000, 2, 2)), y=np.zeros((1000, 2)))  # saves 2 arrays into associated label
+			l.save(z=np.zeros((100, 64, 64, 2)))  # saves 1 array into its associated label
 		'''
+		assert len(data), 'empty data'
 		if self._fObj is None:
 			with t.open_file(self._fname, mode='a') as f:
 				for key, val in data.items():
@@ -311,8 +320,15 @@ class Loser(object):
 		loads data
 
 		:bathc_obj: slice like object to specify how much to load
+
+		:groups: argument list of labels to load, List[str]
+
+		example:
+			l.load('x', 'y', 'z', batch_obj=np.s_[:50])  # loads the first 50 samples of x, y and z arrays
+			l.load('z')  # loads the entirety of the z label array
 		'''
 		out = []
+		assert len(groups), 'empty labels'
 		if self._fObj is None:
 			with t.open_file(self._fname, mode='r') as f:
 				for key in groups:
@@ -329,8 +345,15 @@ class Loser(object):
 	def get_shapes(self, *groups):
 		'''
 		gets group shapes
+
+		:groups: argument list of labels to get the shapes of, List[str]
+
+		example:
+			l.get_shapes('x', 'y')  # returns the shapes of x and y label arrays,
+					# in this case (1000, 2, 2) and (1000, 2)
 		'''
 		out = []
+		assert len(groups), 'empty labels'
 		if self._fObj is None:
 			with t.open_file(self._fname, mode='r') as f:
 				for i in groups:
@@ -345,6 +368,11 @@ class Loser(object):
 	def remove_group(self, *groups):
 		'''
 		removes groups
+
+		:groups: argument list of labels to get the shapes of, List[str]
+
+		example:
+			l.remove_group('z')  # removes z label array
 		'''
 		assert self._fObj is None, 'fast is active'
 		with t.open_file(self.fname, mode='a') as f:
@@ -354,6 +382,11 @@ class Loser(object):
 	def rename_group(self, **kwards):
 		'''
 		renames groups
+
+		:kwards: kwarg dict of {'old label name': 'new label name', ...}, Dict[str, str]
+
+		example:
+			l.rename_group(x='k')  # renames x to k
 		'''
 		assert self._fObj is None, 'fast is active'
 		with t.open_file(self.fname, mode='a') as f:
@@ -363,16 +396,23 @@ class Loser(object):
 
 class HumanIterator(Loser):
 	'''
-	iterator
+	HumanIterator(Loser)
+
+	example usage:
+		inter = HumanIterator('data.h5', 'x', 'y')
+
+		for i in inter:
+			print (i)
 	'''
 
 	def __init__(self, fname, *groups, batch_size=5, limit=-1, seed=None, shuffle=False, loopforever=False, **kwards):
 		'''
 		:fname: file path
-		:groups: group names
+		:groups: argument list of label names
 		:batch_size: load batch size
-		:limit: number of rows to load, negative goes from the end
-		:seed: shuffle seed
+		:limit: number of samples to load, negative goes from the end,
+					functionally the same as python slice stop indices
+		:seed: shuffle seed, None == use random
 		:shuffle: shuffle?
 		:loopforever: loop for ever?
 		'''
