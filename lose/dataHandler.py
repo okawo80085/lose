@@ -375,7 +375,7 @@ class Loser(object):
 			l.remove_group('z')  # removes z label array
 		'''
 		assert self._fObj is None, 'fast is active'
-		with t.open_file(self.fname, mode='a') as f:
+		with t.open_file(self._fname, mode='a') as f:
 			for groupName in groups:
 				f.remove_node('/{}'.format(groupName), recursive=True)
 
@@ -389,7 +389,7 @@ class Loser(object):
 			l.rename_group(x='k')  # renames x to k
 		'''
 		assert self._fObj is None, 'fast is active'
-		with t.open_file(self.fname, mode='a') as f:
+		with t.open_file(self._fname, mode='a') as f:
 			for oldName, newName in kwards.items():
 				x = eval('f.root.{}'.format(oldName))
 				f.rename_node(x, newName)
