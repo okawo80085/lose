@@ -1,5 +1,11 @@
 import setuptools
-from lose import __version__
+
+try:
+	from lose import __version__
+
+except:
+	print("failed to load version, assuming 0.0.1")
+	__version__ = "0.0.1"
 
 with open('readmePypi.md', 'r') as f:
 	ld = f.read()
