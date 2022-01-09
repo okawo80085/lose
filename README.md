@@ -109,6 +109,14 @@ Object Tree:
 ...             l.load('input', 'output')
 # *a bunch of data*
 
+>>>
+>>>
+>>> # there is also an iterator, for more info on it's arguments, checkout help(lose.HumanIterator)
+>>> iter = lose.HumanIterator('test.h5', 'input', 'output', limit=40)
+
+>>> for i in iter:
+...     print(i)
+# i on each step will be [batch from 'input' array, batch from 'output' array], these batches depend on the initial iterator parameters
 ```
 
 ## installation
